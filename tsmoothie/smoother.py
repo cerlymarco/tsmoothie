@@ -7,7 +7,8 @@ from scipy.signal import fftconvolve
 import simdkalman
 
 from .utils_class import LinearRegression
-from .utils_func import (create_windows, sigma_interval, kalman_interval)
+from .utils_func import (create_windows, sigma_interval, kalman_interval,
+                         confidence_interval, prediction_interval)
 from .utils_func import (_check_noise_dict, _check_knots, _check_weights,
                          _check_data, _check_data_nan, _check_output)
 from .regression_basis import (polynomial, linear_spline, cubic_spline, natural_cubic_spline,
