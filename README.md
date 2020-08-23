@@ -47,7 +47,7 @@ The module depends only on NumPy, SciPy and simdkalman. Python 3.5 or above is s
 
 ## Usage
 
-Below a couple of examples of how tsmoothie works. Full examples are available in the [notebooks folder](https://github.com/cerlymarco/tsmoothie/notebooks).
+Below a couple of examples of how tsmoothie works. Full examples are available in the [notebooks folder](https://github.com/cerlymarco/tsmoothie/tree/master/notebooks).
 
 ```python
 # import libraries
@@ -65,7 +65,7 @@ data = sim_randomwalk(n_series=3, timesteps=200,
 smoother = LowessSmoother(smooth_fraction=0.1, iterations=1)
 smoother.smooth(data)
 
-# generate interval
+# generate intervals
 low, up = smoother.get_intervals('prediction_interval')
 
 # plot the smoothed timeseries with intervals
@@ -81,7 +81,7 @@ for i in range(3):
     plt.fill_between(range(len(smoother.data[i])), low[i], up[i], alpha=0.3)
 ```
 
-![Randomwalk Smoothing](imgs/randomwalk_smoothing.png)
+![Randomwalk Smoothing](https://raw.githubusercontent.com/cerlymarco/tsmoothie/master/imgs/randomwalk_smoothing.png)
 
 ```python
 # import libraries
@@ -99,7 +99,7 @@ data = sim_seasonal_data(n_series=3, timesteps=300,
 smoother = LowessSmoother(smooth_fraction=0.05, iterations=1)
 smoother.smooth(data)
 
-# generate interval
+# generate intervals
 low, up = smoother.get_intervals('prediction_interval')
 
 # plot the smoothed timeseries with intervals
@@ -115,7 +115,7 @@ for i in range(3):
     plt.fill_between(range(len(smoother.data[i])), low[i], up[i], alpha=0.3)
 ```
 
-![Sinusoidal Smoothing](imgs/sinusoidal_smoothing.png)
+![Sinusoidal Smoothing](https://raw.githubusercontent.com/cerlymarco/tsmoothie/master/imgs/sinusoidal_smoothing.png)
 
 ## References
 
