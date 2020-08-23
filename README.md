@@ -53,7 +53,7 @@ Below a couple of examples of how tsmoothie works. Full examples are available i
 # import libraries
 import numpy as np
 import matplotlib.pyplot as plt
-from tsmoothie.utils.utils_func import sim_randomwalk
+from tsmoothie.utils_func import sim_randomwalk
 from tsmoothie.smoother import LowessSmoother
 
 # generate 3 randomwalks of lenght 200
@@ -87,7 +87,7 @@ for i in range(3):
 # import libraries
 import numpy as np
 import matplotlib.pyplot as plt
-from tsmoothie.utils.utils_func import sim_seasonal_data
+from tsmoothie.utils_func import sim_seasonal_data
 from tsmoothie.smoother import LowessSmoother
 
 # generate 3 periodic timeseries of lenght 300
