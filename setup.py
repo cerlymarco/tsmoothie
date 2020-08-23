@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 PACKAGE_NAME = 'tsmoothie'
 AUTHOR = 'Marco Cerliani'
 AUTHOR_EMAIL = 'cerlymarco@gmail.com'
