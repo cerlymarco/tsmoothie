@@ -1625,6 +1625,7 @@ class WindowWrapper(object):
         if 'tsmoothie.smoother' not in self.Smoother.__name__:
             raise ValueError("Use a Smoother from tsmoothie.smoother")
 
+        data = np.asarray(data)
         if np.prod(data.shape) == np.max(data.shape):
             data = data.ravel()[:,None]
         else:
