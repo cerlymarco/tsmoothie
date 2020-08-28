@@ -223,7 +223,7 @@ def kalman_interval(true, prediction, cov, confidence=0.05):
     g = stats.norm.ppf(1 - confidence/2)
 
     resid = true - prediction
-    std_err = np.sqrt(np.square(resid).mean(axis=1, keepdims=True))
+    std_err = np.sqrt(np.nanmean(np.square(resid), axis=1, keepdims=True))
     
     low = prediction - g*(std_err*cov)
     up = prediction + g*(std_err*cov)
