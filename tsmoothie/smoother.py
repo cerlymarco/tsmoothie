@@ -278,7 +278,7 @@ class ConvolutionSmoother(object):
         if self.window_type == 'ones':
             w = np.ones(self.window_len)
         else:
-            w = eval('np.'+self.window_type+'(window_len)')
+            w = eval('np.'+self.window_type+'(self.window_len)')
 
         if data.ndim == 2:
             pad_data = np.pad(data, ((self.window_len,self.window_len),(0,0)), mode='symmetric')

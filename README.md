@@ -1,12 +1,12 @@
 # tsmoothie
 
-A python library for timeseries smoothing and outlier detection in a vectorized way.
+A python library for time-series smoothing and outlier detection in a vectorized way.
 
 ## Overview
 
-tsmoothie computes, in a fast and efficient way, the smoothing of single or multiple timeseries. 
+tsmoothie computes, in a fast and efficient way, the smoothing of single or multiple time-series. 
 
-The smoothing tecniques available are:
+The smoothing techniques available are:
 
 - Exponential Smoothing
 - Convolutional Smoothing with various window types (constant, hanning, hamming, bartlett, blackman)
@@ -17,7 +17,7 @@ The smoothing tecniques available are:
 - LOWESS 
 - Kalman Smoothing with customizable components (level, trend, seasonality, long seasonality) 
 
-tsmoothie provides the calculation of intervals as result of the smoothing process. This can be useful to identify outliers and anomalies in timeseries.
+tsmoothie provides the calculation of intervals as result of the smoothing process. This can be useful to identify outliers and anomalies in time-series.
 
 The interval types available are:
 
@@ -28,14 +28,14 @@ The interval types available are:
 
 The adoption of this type of intervals depends on the smoothing method used.
 
-tsmoothie can also carry out a sliding smoothing approach. This is possible splitting the timeseries into equal sized pieces and smoothing them independently. As always, this functionality is implemented in a vectorized way through the WindowWrapper class.
+tsmoothie can also carry out a sliding smoothing approach. This is possible splitting the time-series into equal sized pieces and smoothing them independently. As always, this functionality is implemented in a vectorized way through the WindowWrapper class.
 
 ## Media
 
 Blog Posts:
 
-- Timeseries Smoothing for better clustering (cooming soon)
-- Timeseries Smoothing for better forecasting (cooming soon)
+- [Time Series Smoothing for better Clustering](https://towardsdatascience.com/time-series-smoothing-for-better-clustering-121b98f308e8)
+- Time Series Smoothing for better Forecasting (coming soon)
 
 ## Installation
 
@@ -119,5 +119,5 @@ for i in range(3):
 
 ## References
 
-- Polynomial, Spline, Gaussian and Binner smoothing are carried out building a regression on custom basis expansions. These implementations are based on the amazing intutions of Matthew Drury available [here](https://github.com/madrury/basis-expansions/blob/master/examples/comparison-of-smoothing-methods.ipynb)
+- Polynomial, Spline, Gaussian and Binner smoothing are carried out building a regression on custom basis expansions. These implementations are based on the amazing intuitions of Matthew Drury available [here](https://github.com/madrury/basis-expansions/blob/master/examples/comparison-of-smoothing-methods.ipynb)
 - Time Series Modelling with Unobserved Components, Matteo M. Pelagatti

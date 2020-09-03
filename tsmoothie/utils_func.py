@@ -151,8 +151,8 @@ def create_windows(data, window_shape, step = 1, start_id = None, end_id = None)
     
     data = np.asarray(data)
 
-    if data.ndim == 0:
-        raise ValueError("Pass an object with more than one timesteps")
+    if data.ndim != 2:
+        raise ValueError("Pass a 2D array-like in the format (timestemps, series)")
 
     if window_shape < 1:
         raise ValueError("window_shape must be >= 1")
@@ -196,7 +196,7 @@ def sigma_interval(true, prediction, n_sigma):
         Upper bands.
     """
     
-    std = (true - prediction).std(1, keepdims=True)
+    std = np.nanstd(true - prediction, axis=1, keepdims=True)
     
     low = prediction - n_sigma*std
     up = prediction + n_sigma*std
