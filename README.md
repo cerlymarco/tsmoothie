@@ -43,7 +43,7 @@ Blog Posts:
 pip install tsmoothie
 ```
 
-The module depends only on NumPy, SciPy and simdkalman. Python 3.5 or above is supported.
+The module depends only on NumPy, SciPy and simdkalman. Python 3.6 or above is supported.
 
 ## Usage
 
