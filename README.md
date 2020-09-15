@@ -35,7 +35,7 @@ tsmoothie can also carry out a sliding smoothing approach. This is possible spli
 Blog Posts:
 
 - [Time Series Smoothing for better Clustering](https://towardsdatascience.com/time-series-smoothing-for-better-clustering-121b98f308e8)
-- Time Series Smoothing for better Forecasting (coming soon)
+- [Time Series Smoothing for better Forecasting](https://towardsdatascience.com/time-series-smoothing-for-better-forecasting-7fbf10428b2)
 
 ## Installation
 
