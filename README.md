@@ -15,6 +15,7 @@ The smoothing techniques available are:
 - Gaussian Smoothing 
 - Binner Smoothing 
 - LOWESS 
+- Seasonal Decompose Smoothing of various kind (convolution, lowess, natural cubic spline)
 - Kalman Smoothing with customizable components (level, trend, seasonality, long seasonality) 
 
 tsmoothie provides the calculation of intervals as result of the smoothing process. This can be useful to identify outliers and anomalies in time-series.
@@ -35,7 +36,7 @@ tsmoothie can also carry out a sliding smoothing approach. This is possible spli
 Blog Posts:
 
 - [Time Series Smoothing for better Clustering](https://towardsdatascience.com/time-series-smoothing-for-better-clustering-121b98f308e8)
-- Time Series Smoothing for better Forecasting (coming soon)
+- [Time Series Smoothing for better Forecasting](https://towardsdatascience.com/time-series-smoothing-for-better-forecasting-7fbf10428b2)
 
 ## Installation
 
@@ -88,7 +89,7 @@ for i in range(3):
 import numpy as np
 import matplotlib.pyplot as plt
 from tsmoothie.utils_func import sim_seasonal_data
-from tsmoothie.smoother import LowessSmoother
+from tsmoothie.smoother import DecomposeSmoother
 
 # generate 3 periodic timeseries of lenght 300
 np.random.seed(123)
@@ -96,11 +97,12 @@ data = sim_seasonal_data(n_series=3, timesteps=300,
                          freq=24, measure_noise=30)
 
 # operate smoothing
-smoother = LowessSmoother(smooth_fraction=0.05, iterations=1)
+smoother = DecomposeSmoother(smooth_type='lowess', periods=24,
+                             smooth_fraction=0.3)
 smoother.smooth(data)
 
 # generate intervals
-low, up = smoother.get_intervals('prediction_interval')
+low, up = smoother.get_intervals('sigma_interval')
 
 # plot the smoothed timeseries with intervals
 plt.figure(figsize=(18,5))

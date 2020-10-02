@@ -62,14 +62,11 @@ class ExponentialSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = ExponentialSmoother(window_len=20, alpha=0.3)
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('sigma_interval')
     """
 
@@ -218,14 +215,11 @@ class ConvolutionSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = ConvolutionSmoother(window_len=10, window_type='ones')
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('sigma_interval')
     """
 
@@ -375,14 +369,11 @@ class PolynomialSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = PolynomialSmoother(degree=6)
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
 
@@ -552,14 +543,11 @@ class SplineSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = SplineSmoother(n_knots=6, spline_type='natural_cubic_spline')
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
 
@@ -740,14 +728,11 @@ class GaussianSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = GaussianSmoother(n_knots=6, sigma=0.1)
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
 
@@ -923,14 +908,11 @@ class BinnerSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = BinnerSmoother(n_knots=6)
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
 
@@ -1050,7 +1032,6 @@ class BinnerSmoother(object):
         return low, up
 
 
-
 class LowessSmoother(object):
 
     """
@@ -1061,52 +1042,55 @@ class LowessSmoother(object):
     the slope and intercept. The presented method is robust because it 
     performs residual-based reweightings simply specifing the number of 
     iterations to operate.
-    
-    The LowessSmoother automatically vectorizes, in an efficient way, 
-    the desired smoothing operation on all the series received.
-    
+
+    The LowessSmoother automatically vectorizes, in an efficient way,
+    the desired smoothing operation on all the series passed.
+
     Parameters
     ----------
     smooth_fraction : float
-        Between 0 and 1. The smoothing span. A larger value of smooth_fraction 
+        Between 0 and 1. The smoothing span. A larger value of smooth_fraction
         will result in a smoother curve.
-    iterations : int
+    iterations: int
         Between 1 and 6. The number of residual-based reweightings to perform.
-    copy : bool, default True
-        If True, the raw data received by the smoother and the smoothed results 
-        can be accessed using 'data' and 'smooth_data' attributes. This is useful 
-        to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+    batch_size: int or None, default=None
+        How many timeseries are smoothed simultaneously. This parameter is important because
+        LowessSmoother is a memory greedy process. Setting it low, with big timeseries,
+        helps to avoid MemoryError. By default None means that all the timeseries
+        are smoothed simultaneously.
+    copy: bool, default=True
+        If True, the raw data passed to the smoother and the smoothed results
+        can be accessed using 'data' and 'smooth_data' attributes. This is useful
+        to calculate the intervals. If set to False the interval calculation is disabled.
+        In order to save memory, set it to False if you are intereset only
         in the smoothed results.
-        
+
     Attributes
     ----------
-    smooth_data : array of shape (series, timesteps) 
-        Smoothed data derived from the smoothing operation. It is accessible 
+    smooth_data : array of shape (series, timesteps)
+        Smoothed data derived from the smoothing operation. It is accessible
         after computhing smoothing, otherwise None is returned.
-    data : array of shape (series, timesteps) 
-        Raw data received by the smoother. It is accessible with 'copy' = True and 
-        after computhing smoothing, otherwise None is returned. 
-        
+    data : array of shape (series, timesteps)
+        Raw data passed to the smoother. It is accessible with 'copy' = True and
+        after computhing smoothing, otherwise None is returned.
+
     Examples
     --------
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
-    >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>> data = sim_randomwalk(n_series=10, timesteps=200,
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = LowessSmoother(smooth_fraction=0.3, iterations=1)
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
 
-    def __init__(self, smooth_fraction, iterations=1, copy=True):
+    def __init__(self, smooth_fraction, iterations=1, batch_size=None, copy=True):
         self.smooth_fraction = smooth_fraction
         self.iterations = iterations
+        self.batch_size = batch_size
         self.copy = copy
         self.smooth_data = None
         self.data = None
@@ -1126,16 +1110,16 @@ class LowessSmoother(object):
 
         """
         Smooth timeseries.
-        
+
         Parameters
         ----------
         data : array-like of shape (series, timesteps) or also (timesteps,) for single timeseries
-            Timeseries to smooth. The data are assumed to be in increasing time order 
-            in each timeseries.
-               
+            Timeseries to smooth.
+
         Returns
         -------
-        self : returns an instance of self
+        smooth : array of shape (series, timesteps)
+            Smoothed timeseries.
         """
 
         if self.smooth_fraction >= 1 or self.smooth_fraction <= 0:
@@ -1146,46 +1130,71 @@ class LowessSmoother(object):
 
         data = _check_data(data)
         if data.ndim == 1:
-            data = data[:,None]
-        timesteps = data.shape[0]
+            data = data[:, None]
+        timesteps, n_timeseries = data.shape
 
-        X = np.arange(timesteps)
+        if self.batch_size is not None:
+            if self.batch_size <= 0 or self.batch_size > n_timeseries:
+                raise ValueError("batch_size must be in the range (0,series]")
+
+        X = np.arange(timesteps) / (timesteps - 1)
         w_init = lowess(self.smooth_fraction, timesteps)
+
+        max_data = data.max(axis=0, keepdims=True)
+        data = data / max_data
 
         delta = np.ones_like(data)
 
+        if self.batch_size is None:
+            batches = [np.arange(0, n_timeseries)]
+        else:
+            batches = np.split(np.arange(0, n_timeseries),
+                               np.arange(self.batch_size, n_timeseries + self.batch_size - 1,
+                                         self.batch_size))
+        smooth = np.empty_like(data)
+
         for iteration in range(self.iterations):
 
-            w = delta[:,None,:] * w_init[...,None]  # (timesteps, timesteps, n_series)
+            for B in batches:
 
-            wy = w * data[:,None,:]  # (timesteps, timesteps, n_series)
-            wyx = wy * X[:,None,None]  # (timesteps, timesteps, n_series)
-            wx = w * X[:,None,None]  # (timesteps, timesteps, n_series)
-            wxx = wx * X[:,None,None]  # (timesteps, timesteps, n_series)
+                try:
+                    w = delta[:, None, B] * w_init[..., None]  # (timesteps, timesteps, n_series)
 
-            b = np.array([wy.sum(axis=0), wyx.sum(axis=0)]).T  # (n_series, timesteps, 2)
-            A = np.array([[w.sum(axis=0), wx.sum(axis=0)],
-                          [wx.sum(axis=0), wxx.sum(axis=0)]])  # (2, 2, timesteps, n_series)
+                    wy = w * data[:, None, B]  # (timesteps, timesteps, n_series)
+                    wyx = wy * X[:, None, None]  # (timesteps, timesteps, n_series)
+                    wx = w * X[:, None, None]  # (timesteps, timesteps, n_series)
+                    wxx = wx * X[:, None, None]  # (timesteps, timesteps, n_series)
 
-            XtX = (A.transpose(1,0,2,3)[None,...]*A[:,None,...]).sum(2)  # (2, 2, timesteps, n_series)
-            XtX = np.linalg.pinv(XtX.transpose(3,2,0,1))  # (n_series, timesteps, 2, 2)
-            XtXXt = (XtX[...,None]*A.transpose(3,2,1,0)[...,None,:]).sum(2)  # (n_series, timesteps, 2, 2)
-            betas = np.squeeze(XtXXt @ b[...,None], -1)  # (n_series, timesteps, 2)
+                    b = np.array([wy.sum(axis=0), wyx.sum(axis=0)]).T  # (n_series, timesteps, 2)
+                    A = np.array([[w.sum(axis=0), wx.sum(axis=0)],
+                                  [wx.sum(axis=0), wxx.sum(axis=0)]])  # (2, 2, timesteps, n_series)
 
-            smooth = (betas[...,0] + betas[...,1] * X).T  # (timesteps, n_series)
+                    XtX = (A.transpose(1, 0, 2, 3)[None, ...] * A[:, None, ...]).sum(2)  # (2, 2, timesteps, n_series)
+                    XtX = np.linalg.pinv(XtX.transpose(3, 2, 0, 1))  # (n_series, timesteps, 2, 2)
+                    XtXXt = (XtX[..., None] * A.transpose(3, 2, 1, 0)[..., None, :]).sum(
+                        2)  # (n_series, timesteps, 2, 2)
+                    betas = np.squeeze(XtXXt @ b[..., None], -1)  # (n_series, timesteps, 2)
 
-            residuals = data - smooth
-            s = np.median(np.abs(residuals), axis=0).clip(1e-5)  # clip to avoid division by 0
-            delta = (residuals / (6.0 * s)).clip(-1, 1)
-            delta = np.square(1 - np.square(delta))
+                    smooth[:, B] = (betas[..., 0] + betas[..., 1] * X).T  # (timesteps, n_series)
+
+                    residuals = (data[:, B] * max_data[:, B]) - smooth[:, B]
+                    s = np.median(np.abs(residuals), axis=0).clip(1e-5)
+                    delta[:, B] = (residuals / (6.0 * s)).clip(-1, 1)
+                    delta[:, B] = np.square(1 - np.square(delta[:, B]))
+
+                except MemoryError:
+                    raise StopIteration("Reduce the batch_size provided in order to not encounter memory errors. "
+                                        f"Provided batch_size is {self.batch_size}. "
+                                        "By default batch_size is set to None. This means that all the timeseries "
+                                        "passed are smoothed simultaneously.")
 
         smooth = _check_output(smooth)
         data = _check_output(data)
 
-        self.smooth_data = smooth
+        self.smooth_data = smooth * max_data.T
         if self.copy:
-            self.X = X
-            self.data = data
+            self.X = X * (timesteps - 1)
+            self.data = data * max_data.T
 
         return self
 
@@ -1195,21 +1204,22 @@ class LowessSmoother(object):
         """
         Obtain intervals from the smoothed timeseries.
         Take care to set copy = True when defining the smoother.
-        
+
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
-            Supported types are 'sigma_interval', 'confidence_interval' and 'prediction_interval'. 
+            Type of interval used to produced the lower and upper bands.
+            Supported type are 'sigma_interval', 'confidence_interval' and 'prediction_interval'.
         confidence : float, default 0.05
-            The significance level for the intervals calculated as (1-confidence). 
-            This parameter is effective only if 'confidence_interval' or 'prediction_interval' 
+            The significance level for the intervals calculated as (1-confidence) level from
+            a distribution of reference.
+            This parameter is effective only if 'confidence_interval' or 'prediction_interval'
             are selected as interval_type, otherwise is ignored.
-        n_sigma : int, default 2
-            How many standard deviations, calculated on residuals of the smoothing operation, 
-            are used to obtain the intervals. This parameter is effective only if 'sigma_interval' 
+        n_sigma: int, default 2
+            How many standard deviations, calculated on residuals of the smoothing operation,
+            are used to obtain the intervals. This parameter is effective only if 'sigma_interval'
             is selected as interval_type, otherwise is ignored.
-               
+
         Returns
         -------
         low : array of shape (series, timesteps)
@@ -1224,13 +1234,198 @@ class LowessSmoother(object):
         interval_types = ['sigma_interval', 'confidence_interval', 'prediction_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(
+                f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
         elif interval_type == 'confidence_interval' or interval_type == 'prediction_interval':
             interval_f = eval(interval_type)
             low, up = interval_f(self.data, self.smooth_data, self.X, confidence)
+
+        return low, up
+
+
+
+class DecomposeSmoother(object):
+
+    """
+    DecomposeSmoother smoothes the timeseries applying a standard
+    seasonal decomposition. The seasonal decomposition can be carried out using
+    different smoothing techniques available in tsmoothie.
+
+    The DecomposeSmoother automatically vectorizes, in an efficient way,
+    the desired smoothing operation on all the series received.
+
+    Parameters
+    ----------
+    smooth_type : str
+        The type of smoothing used to compute the seasonal decomposition.
+        Supported types are: 'convolution', 'lowess', 'natural_cubic_spline'.
+    periods : list
+        List of seasonal periods of the timeseries. Multiple periods are allowed.
+        Each period must be an integer reater than 0.
+    method : str
+        Type of seasonal component.
+        Supported types are: 'additive', 'multiplicative'
+    **smoothargs : Smoothing arguments, the same accepted by the tsmoothie smoothers.
+    copy : bool, default True
+        If True, the raw data received by the smoother and the smoothed results
+        can be accessed using 'data' and 'smooth_data' attributes. This is useful
+        to calculate the intervals. If set to False the interval calculation is disabled.
+        In order to save memory, set it to False if you are intereset only
+        in the smoothed results.
+
+    Attributes
+    ----------
+    smooth_data : array of shape (series, timesteps)
+        Smoothed data derived from the smoothing operation. It is accessible
+        after computhing smoothing, otherwise None is returned.
+    data : array of shape (series, timesteps)
+        Raw data received by the smoother. It is accessible with 'copy' = True and
+        after computhing smoothing, otherwise None is returned.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from tsmoothie.utils.utils_func import sim_seasonal_data
+    >>> from tsmoothie.smoother import *
+    >>> np.random.seed(33)
+    >>> data = sim_seasonal_data(n_series=3, timesteps=300,
+    >>>                          freq=24, measure_noise=30)
+    >>> smoother = DecomposeSmoother(smooth_type='convolution', periods=24,
+    >>>                              window_len=30, window_type='ones')
+    >>> smoother.smooth(data)
+    >>> low, up = smoother.get_intervals('sigma_interval')
+    """
+
+    def __init__(self, smooth_type, periods, method='additive', copy=True, **smoothargs):
+        self.smooth_type = smooth_type
+        self.periods = periods
+        self.method = method
+        self.copy = copy
+        self.smoothargs = smoothargs
+        self.smooth_data = None
+        self.data = None
+        self.__name__ = 'tsmoothie.smoother.DecomposeSmoother'
+
+
+    def __repr__(self):
+        return f"<{self.__name__}>"
+
+
+    def __str__(self):
+        return f"<{self.__name__}>"
+
+
+    def smooth(self, data):
+
+        """
+        Smooth timeseries.
+
+        Parameters
+        ----------
+        data : array-like of shape (series, timesteps) or also (timesteps,) for single timeseries
+            Timeseries to smooth. The data are assumed to be in increasing time order
+            in each timeseries.
+
+        Returns
+        -------
+        self : returns an instance of self
+        """
+
+        smooth_types = ['convolution', 'lowess', 'natural_cubic_spline']
+        methods = ['additive', 'multiplicative']
+
+        if self.smooth_type not in smooth_types:
+            raise ValueError(f"'{self.smooth_type}' is not a supported smooth type. Supported types are {smooth_types}")
+
+        if self.method not in methods:
+            raise ValueError(f"'{self.method}' is not a supported method type. Supported types are {methods}")
+
+        if not isinstance(self.periods, list):
+            self.periods = [self.periods]
+        for p in self.periods:
+            if p <= 0 or not isinstance(p, int):
+                raise ValueError("periods must a list containing int > 0")
+
+        if self.smooth_type == 'convolution':
+            smoother = ConvolutionSmoother(copy=True, **self.smoothargs)
+            smoother.smooth(data)
+        elif self.smooth_type == 'lowess':
+            smoother = LowessSmoother(copy=True, **self.smoothargs)
+            smoother.smooth(data)
+        elif self.smooth_type == 'natural_cubic_spline':
+            smoother = SplineSmoother(copy=True, spline_type='natural_cubic_spline', **self.smoothargs)
+            smoother.smooth(data)
+
+        if self.method == 'additive':
+            detrended = smoother.data - smoother.smooth_data
+        else:
+            detrended = smoother.data / smoother.smooth_data
+
+        period_averages = []
+        for p in self.periods:
+            period_averages.append(np.array([np.mean(detrended[:, i::p], axis=1) for i in range(p)]).T)
+
+        if self.method == 'additive':
+            period_averages = [p_a - np.mean(p_a, axis=1, keepdims=True) for p_a in period_averages]
+        else:
+            period_averages = [p_a / np.mean(p_a, axis=1, keepdims=True) for p_a in period_averages]
+
+        nobs = smoother.data.shape[1]
+        seasonal = [np.tile(p_a, (1, nobs // self.periods[i] + 1))[:, :nobs] for i, p_a in enumerate(period_averages)]
+
+        if self.method == 'additive':
+            smooth = smoother.smooth_data
+            for season in seasonal:
+                smooth += season
+        else:
+            smooth = smoother.smooth_data
+            for season in seasonal:
+                smooth *= season
+
+        self.smooth_data = smooth
+        if self.copy:
+            self.data = smoother.data
+
+        return self
+
+    def get_intervals(self, interval_type, n_sigma=2, **kwargs):
+
+        """
+        Obtain intervals from the smoothed timeseries.
+        Take care to set copy = True when defining the smoother.
+
+        Parameters
+        ----------
+        interval_type : str
+            Type of interval used to produced the lower and upper bands.
+            Supported type is 'sigma_interval'.
+        n_sigma : int, default 2
+            How many standard deviations, calculated on residuals of the smoothing operation,
+            are used to obtain the intervals. This parameter is effective only if 'sigma_interval'
+            is selected as interval_type, otherwise is ignored.
+
+        Returns
+        -------
+        low : array of shape (series, timesteps)
+            Lower bands.
+        up : array of shape (series, timesteps)
+            Upper bands.
+        """
+
+        if self.data is None:
+            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+
+        interval_types = ['sigma_interval']
+
+        if interval_type not in interval_types:
+            raise ValueError(
+                f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+
+        if interval_type == 'sigma_interval':
+            low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
 
         return low, up
 
@@ -1293,15 +1488,12 @@ class KalmanSmoother(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = KalmanSmoother(component='level_trend', 
-                                  component_noise={'level':0.1, 'trend':0.1})
+    >>>                           component_noise={'level':0.1, 'trend':0.1})
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('kalman_interval')
     """
 
@@ -1577,15 +1769,12 @@ class WindowWrapper(object):
     >>> import numpy as np
     >>> from tsmoothie.utils.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
-
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=1, timesteps=200, 
-                              process_noise=10, measure_noise=30)
-
+    >>>                       process_noise=10, measure_noise=30)
     >>> smoother = WindowWrapper(LowessSmoother(smooth_fraction=0.3, iterations=1), 
-                                 window_shape=30)
+    >>>                          window_shape=30)
     >>> smoother.smooth(data)
-
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
 
@@ -1629,7 +1818,8 @@ class WindowWrapper(object):
         if np.prod(data.shape) == np.max(data.shape):
             data = data.ravel()[:,None]
         else:
-            raise ValueError("The format of data received is not appropriate. window_wrapper accepts only univariate timeseries")
+            raise ValueError("The format of data received is not appropriate. " 
+                             "window_wrapper accepts only univariate timeseries.")
 
         if data.shape[0] < self.window_shape:
             raise ValueError("window_shape must be <= than timesteps")
