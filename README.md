@@ -38,6 +38,7 @@ Blog Posts:
 - [Time Series Smoothing for better Clustering](https://towardsdatascience.com/time-series-smoothing-for-better-clustering-121b98f308e8)
 - [Time Series Smoothing for better Forecasting](https://towardsdatascience.com/time-series-smoothing-for-better-forecasting-7fbf10428b2)
 - [Real-Time Time Series Anomaly Detection](https://towardsdatascience.com/real-time-time-series-anomaly-detection-981cf1e1ca13)
+- [Extreme Event Time Series Preprocessing](https://towardsdatascience.com/extreme-event-time-series-preprocessing-90aa59d5630c)
 
 ## Installation
 
