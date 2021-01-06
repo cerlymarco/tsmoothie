@@ -52,7 +52,7 @@ class BootstrappingWrapper(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_seasonal_data
+    >>> from tsmoothie.utils_func import sim_seasonal_data
     >>> from tsmoothie.bootstrap import BootstrappingWrapper
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)

@@ -60,7 +60,7 @@ class ExponentialSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -215,7 +215,7 @@ class ConvolutionSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -376,7 +376,7 @@ class SpectralSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_seasonal_data
+    >>> from tsmoothie.utils_func import sim_seasonal_data
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_seasonal_data(n_series=3, timesteps=200,
@@ -523,7 +523,7 @@ class PolynomialSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -699,7 +699,7 @@ class SplineSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -887,7 +887,7 @@ class GaussianSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -1069,7 +1069,7 @@ class BinnerSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -1242,7 +1242,7 @@ class LowessSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200,
@@ -1454,7 +1454,7 @@ class DecomposeSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_seasonal_data
+    >>> from tsmoothie.utils_func import sim_seasonal_data
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_seasonal_data(n_series=3, timesteps=300,
@@ -1656,7 +1656,7 @@ class KalmanSmoother(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
@@ -1939,7 +1939,7 @@ class WindowWrapper(object):
     Examples
     --------
     >>> import numpy as np
-    >>> from tsmoothie.utils.utils_func import sim_randomwalk
+    >>> from tsmoothie.utils_func import sim_randomwalk
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=1, timesteps=200, 
