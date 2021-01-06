@@ -137,7 +137,7 @@ def create_windows(data, window_shape, step = 1, start_id = None, end_id = None)
         The step used to generate the sliding windows. The overlapping portion of
         two adjacent windows can be defined as (window_shape - step).
     start_id : int, default None
-        The starting position from where operatare slicing. The same for 
+        The starting position from where operate slicing. The same for
         all the series. If None, the windows are generated from the index 0.
     end_id : int, default None
         The ending position of the slicing operation. The same for 
@@ -298,7 +298,7 @@ def prediction_interval(true, prediction, exog, confidence, add_intercept=True):
     resid = true - prediction
     mse = (np.square(resid).sum(axis=1, keepdims=True)/(N - d_free)).T
     
-    covb =  np.linalg.pinv(np.dot(exog.T, exog))[...,None] * mse
+    covb = np.linalg.pinv(np.dot(exog.T, exog))[...,None] * mse
     predvar = mse + (exog[...,None] * np.dot(covb.transpose(2,0,1), exog.T).T).sum(1)
     predstd = np.sqrt(predvar).T
     
@@ -431,7 +431,8 @@ def _check_data(data):
         data = data.ravel()
     
     if data.ndim > 2:
-        raise ValueError("The format of data received is not appropriate. Pass an object with data in this format (series, timesteps)")
+        raise ValueError("The format of data received is not appropriate. "
+                         "Pass an object with data in this format (series, timesteps)")
     
     if data.ndim == 0:
         raise ValueError("Pass an object with data in this format (series, timesteps)")
@@ -465,7 +466,8 @@ def _check_data_nan(data):
         data = data.ravel()
     
     if data.ndim > 2:
-        raise ValueError("The format of data received is not appropriate. Pass an objet with data in this format (series, timesteps)")
+        raise ValueError("The format of data received is not appropriate. "
+                         "Pass an objet with data in this format (series, timesteps)")
     
     if data.ndim == 0:
         raise ValueError("Pass an object with data in this format (series, timesteps)")    
@@ -496,3 +498,111 @@ def _check_output(output, transpose=True):
         output = output[None,:]
         
     return output
+
+
+
+def _id_nb_bootstrap(n_obs, block_length):
+    """
+    Create bootstrapped indexes with the none overlapping block bootstrap ('nbb')
+    strategy given the number of observations in a timeseries and
+    the length of the blocks.
+
+    Returns
+    -------
+    _id : array
+        Bootstrapped indexes.
+    """
+
+    n_blocks = int(np.ceil(n_obs / block_length))
+    nexts = np.repeat([np.arange(0, block_length)], n_blocks, axis=0)
+
+    blocks = np.random.permutation(
+        np.arange(0, n_obs, block_length)
+    ).reshape(-1, 1)
+
+    _id = (blocks + nexts).ravel()[:n_obs]
+
+    return _id
+
+
+
+def _id_mb_bootstrap(n_obs, block_length):
+    """
+    Create bootstrapped indexes with the moving block bootstrap ('mbb')
+    strategy given the number of observations in a timeseries and
+    the length of the blocks.
+
+    Returns
+    -------
+    _id : array
+        Bootstrapped indexes.
+    """
+
+    n_blocks = int(np.ceil(n_obs / block_length))
+    nexts = np.repeat([np.arange(0, block_length)], n_blocks, axis=0)
+
+    last_block = n_obs - block_length
+    blocks = np.random.randint(0, last_block, (n_blocks, 1))
+    _id = (blocks + nexts).ravel()[:n_obs]
+
+    return _id
+
+
+
+def _id_cb_bootstrap(n_obs, block_length):
+    """
+    Create bootstrapped indexes with the circular block bootstrap ('cbb')
+    strategy given the number of observations in a timeseries and
+    the length of the blocks.
+
+    Returns
+    -------
+    _id : array
+        Bootstrapped indexes.
+    """
+
+    n_blocks = int(np.ceil(n_obs / block_length))
+    nexts = np.repeat([np.arange(0, block_length)], n_blocks, axis=0)
+
+    last_block = n_obs
+    blocks = np.random.randint(0, last_block, (n_blocks, 1))
+    _id = np.mod((blocks + nexts).ravel(), n_obs)[:n_obs]
+
+    return _id
+
+
+
+def _id_s_bootstrap(n_obs, block_length):
+    """
+    Create bootstrapped indexes with the stationary bootstrap ('sb')
+    strategy given the number of observations in a timeseries and
+    the length of the blocks.
+
+    Returns
+    -------
+    _id : array
+        Bootstrapped indexes.
+    """
+
+    random_block_length = np.random.poisson(block_length, n_obs)
+    random_block_length[random_block_length < 3] = 3
+    random_block_length[random_block_length >= n_obs] = n_obs
+    random_block_length = random_block_length[random_block_length.cumsum() <= n_obs]
+    residual_block = n_obs - random_block_length.sum()
+    if residual_block > 0:
+        random_block_length = np.append(random_block_length, residual_block)
+
+    n_blocks = random_block_length.shape[0]
+    nexts = np.zeros((n_blocks, random_block_length.max() + 1))
+    nexts[np.arange(n_blocks), random_block_length] = 1
+    nexts = np.flip(nexts, 1).cumsum(1).cumsum(1).ravel()
+    nexts = (nexts[nexts > 1] - 2).astype(int)
+
+    last_block = n_obs - random_block_length.max()
+    blocks = np.zeros(n_obs, dtype=int)
+    if last_block > 0:
+        blocks = np.random.randint(0, last_block, n_blocks)
+        blocks = np.repeat(blocks, random_block_length)
+    _id = blocks + nexts
+
+    return _id

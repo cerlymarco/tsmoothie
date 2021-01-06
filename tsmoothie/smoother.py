@@ -43,7 +43,7 @@ class ExponentialSmoother(object):
         If True, the raw data received by the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
         
     Attributes
@@ -64,7 +64,7 @@ class ExponentialSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = ExponentialSmoother(window_len=20, alpha=0.3)
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('sigma_interval')
@@ -145,7 +145,7 @@ class ExponentialSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported type is 'sigma_interval'. 
         n_sigma : int, default 2
             How many standard deviations, calculated on residuals of the smoothing operation, 
@@ -161,12 +161,14 @@ class ExponentialSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -198,7 +200,7 @@ class ConvolutionSmoother(object):
         If True, the raw data received by the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
         
     Attributes
@@ -217,7 +219,7 @@ class ConvolutionSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = ConvolutionSmoother(window_len=10, window_type='ones')
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('sigma_interval')
@@ -259,7 +261,8 @@ class ConvolutionSmoother(object):
         window_types = ['ones', 'hanning', 'hamming', 'bartlett', 'blackman']
 
         if self.window_type not in window_types:
-            raise ValueError(f"'{self.window_type}' is not a supported window type. Supported types are {window_types}")
+            raise ValueError(f"'{self.window_type}' is not a supported window type. "
+                             f"Supported types are {window_types}")
 
         if self.window_len < 1:
             raise ValueError("window_len must be >= 1")
@@ -303,7 +306,7 @@ class ConvolutionSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported type is 'sigma_interval'. 
         n_sigma : int, default 2
             How many standard deviations, calculated on residuals of the smoothing operation, 
@@ -319,12 +322,165 @@ class ConvolutionSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
+
+        if interval_type == 'sigma_interval':
+            low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
+
+        return low, up
+
+
+
+class SpectralSmoother(object):
+    """
+    SpectralSmoother smoothes the timeseries applying a Fourier Transform.
+    It maintains the most important frequencies, suppressing the others in the
+    Fourier domain. This results in a smoother curves when returning to
+    a real domain.
+
+    The SpectralSmoother automatically vectorizes, in an efficient way,
+    the desired smoothing operation on all the series passed.
+
+    Parameters
+    ----------
+    smooth_fraction : float
+        Between 0 and 1. The smoothing strength. A lower value of smooth_fraction
+        will result in a smoother curve. It's the proportion of frequencies used in the
+        discrete Fourier Transform to smooth the curve.
+    pad_len : int
+        Greater than equal to 1. The length of the padding used at each timeseries edge
+        to center the series and obtain better smoothings.
+    copy : bool, default True
+        If True, the raw data passed to the smoother and the smoothed results
+        can be accessed using 'data' and 'smooth_data' attributes. This is useful
+        to calculate the intervals. If set to False the interval calculation is disabled.
+        In order to save memory, set it to False if you are interested only
+        in the smoothed results.
+
+    Attributes
+    ----------
+    smooth_data : array of shape (series, timesteps)
+        Smoothed data derived from the smoothing operation. It is accessible
+        after computhing smoothing, otherwise None is returned.
+    data : array of shape (series, timesteps)
+        Raw data passed to the smoother. It is accessible with 'copy' = True and
+        after computhing smoothing, otherwise None is returned.
+
+    Examples
+    --------
+    >>> import numpy as np
+    >>> from tsmoothie.utils.utils_func import sim_seasonal_data
+    >>> from tsmoothie.smoother import *
+    >>> np.random.seed(33)
+    >>> data = sim_seasonal_data(n_series=3, timesteps=200,
+    ...                          freq=24, measure_noise=15)
+    >>> smoother = SpectralSmoother(smooth_fraction=0.2, pad_len=20)
+    >>> smoother.smooth(data)
+    >>> low, up = smoother.get_intervals('sigma_interval')
+    """
+
+    def __init__(self, smooth_fraction, pad_len, copy=True):
+        self.smooth_fraction = smooth_fraction
+        self.pad_len = pad_len
+        self.copy = copy
+        self.smooth_data = None
+        self.data = None
+        self.__name__ = 'tsmoothie.smoother.SpectralSmoother'
+
+    def __repr__(self):
+        return f"<{self.__name__}>"
+
+    def __str__(self):
+        return f"<{self.__name__}>"
+
+    def smooth(self, data):
+
+        """
+        Smooth timeseries.
+
+        Parameters
+        ----------
+        data : array-like of shape (series, timesteps) or also (timesteps,) for single timeseries
+            Timeseries to smooth.
+
+        Returns
+        -------
+        self : returns an instance of self
+        """
+
+        if self.smooth_fraction >= 1 or self.smooth_fraction <= 0:
+            raise ValueError("smooth_fraction must be in the range (0,1)")
+
+        if self.pad_len < 1:
+            raise ValueError("pad_len must be >= 1")
+
+        data = _check_data(data)
+
+        if data.ndim == 2:
+            pad_data = np.pad(data, ((self.pad_len, self.pad_len), (0, 0)), mode='symmetric')
+        else:
+            pad_data = np.pad(data, self.pad_len, mode='symmetric')
+
+        rfft = np.fft.rfft(pad_data, axis=0)
+        n_coeff = int(rfft.shape[0] * self.smooth_fraction)
+
+        if rfft.ndim == 2:
+            rfft[n_coeff:, :] = 0
+        else:
+            rfft[n_coeff:] = 0
+
+        smooth = np.fft.irfft(rfft, axis=0)
+        smooth = smooth[self.pad_len:-self.pad_len]
+
+        smooth = _check_output(smooth)
+        data = _check_output(data)
+
+        self.smooth_data = smooth
+        if self.copy:
+            self.data = data
+
+        return self
+
+    def get_intervals(self, interval_type, n_sigma=2, **kwargs):
+
+        """
+        Obtain intervals from the smoothed timeseries.
+        Take care to set copy = True when defining the smoother.
+
+        Parameters
+        ----------
+        interval_type : str
+            Type of interval used to produce the lower and upper bands.
+            Supported type is 'sigma_interval'.
+        n_sigma : int, default 2
+            How many standard deviations, calculated on residuals of the smoothing operation,
+            are used to obtain the intervals. This parameter is effective only if 'sigma_interval'
+            is selected as interval_type, otherwise is ignored.
+
+        Returns
+        -------
+        low : array of shape (series, timesteps)
+            Lower bands.
+        up : array of shape (series, timesteps)
+            Upper bands.
+        """
+
+        if self.data is None:
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
+
+        interval_types = ['sigma_interval']
+
+        if interval_type not in interval_types:
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -352,7 +508,7 @@ class PolynomialSmoother(object):
         If True, the raw data received by the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
         
     Attributes
@@ -371,7 +527,7 @@ class PolynomialSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = PolynomialSmoother(degree=6)
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('prediction_interval')
@@ -447,7 +603,7 @@ class PolynomialSmoother(object):
         Parameters
         ----------
         interval_type : str 
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported types are 'sigma_interval', 'confidence_interval' and 'prediction_interval'. 
         confidence : float, default 0.05 
             The significance level for the intervals calculated as (1-confidence). 
@@ -467,12 +623,14 @@ class PolynomialSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval', 'confidence_interval', 'prediction_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -526,7 +684,7 @@ class SplineSmoother(object):
         If True, the raw data received to the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
         
     Attributes
@@ -545,7 +703,7 @@ class SplineSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = SplineSmoother(n_knots=6, spline_type='natural_cubic_spline')
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('prediction_interval')
@@ -592,7 +750,8 @@ class SplineSmoother(object):
         spline_types = {'linear_spline':1, 'cubic_spline':1, 'natural_cubic_spline':3}
 
         if self.spline_type not in spline_types:
-            raise ValueError(f"'{self.spline_type}' is not a supported spline type. Supported types are {list(spline_types.keys())}")
+            raise ValueError(f"'{self.spline_type}' is not a supported spline type. "
+                             f"Supported types are {list(spline_types.keys())}")
 
         data = _check_data(data)
         basis_len = data.shape[0]
@@ -638,7 +797,7 @@ class SplineSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported types are 'sigma_interval', 'confidence_interval' and 'prediction_interval'. 
         confidence : float, default 0.05 
             The significance level for the intervals calculated as (1-confidence). 
@@ -658,12 +817,14 @@ class SplineSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval', 'confidence_interval', 'prediction_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -711,7 +872,7 @@ class GaussianSmoother(object):
         If True, the raw data received by the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
         
     Attributes
@@ -730,7 +891,7 @@ class GaussianSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = GaussianSmoother(n_knots=6, sigma=0.1)
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('prediction_interval')
@@ -817,7 +978,7 @@ class GaussianSmoother(object):
         Parameters
         ----------
         interval_type : str 
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported types are 'sigma_interval', 'confidence_interval' and 'prediction_interval'. 
         confidence : float, default 0.05 
             The significance level for the intervals calculated as (1-confidence). 
@@ -837,12 +998,14 @@ class GaussianSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval', 'confidence_interval', 'prediction_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -891,7 +1054,7 @@ class BinnerSmoother(object):
         If True, the raw data received by the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
         
     Attributes
@@ -910,7 +1073,7 @@ class BinnerSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = BinnerSmoother(n_knots=6)
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('prediction_interval')
@@ -996,7 +1159,7 @@ class BinnerSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported types are 'sigma_interval', 'confidence_interval' and 'prediction_interval'. 
         confidence : float, default 0.05
             The significance level for the intervals calculated as (1-confidence). 
@@ -1016,12 +1179,14 @@ class BinnerSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval', 'confidence_interval', 'prediction_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -1051,18 +1216,18 @@ class LowessSmoother(object):
     smooth_fraction : float
         Between 0 and 1. The smoothing span. A larger value of smooth_fraction
         will result in a smoother curve.
-    iterations: int
+    iterations : int
         Between 1 and 6. The number of residual-based reweightings to perform.
-    batch_size: int or None, default=None
+    batch_size : int or None, default None
         How many timeseries are smoothed simultaneously. This parameter is important because
         LowessSmoother is a memory greedy process. Setting it low, with big timeseries,
         helps to avoid MemoryError. By default None means that all the timeseries
         are smoothed simultaneously.
-    copy: bool, default=True
+    copy : bool, default True
         If True, the raw data passed to the smoother and the smoothed results
         can be accessed using 'data' and 'smooth_data' attributes. This is useful
         to calculate the intervals. If set to False the interval calculation is disabled.
-        In order to save memory, set it to False if you are intereset only
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
 
     Attributes
@@ -1081,7 +1246,7 @@ class LowessSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200,
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = LowessSmoother(smooth_fraction=0.3, iterations=1)
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('prediction_interval')
@@ -1186,7 +1351,7 @@ class LowessSmoother(object):
                     raise StopIteration("Reduce the batch_size provided in order to not encounter memory errors. "
                                         f"Provided batch_size is {self.batch_size}. "
                                         "By default batch_size is set to None. This means that all the timeseries "
-                                        "passed are smoothed simultaneously.")
+                                        "passed are smoothed simultaneously")
 
         smooth = _check_output(smooth)
         data = _check_output(data)
@@ -1208,7 +1373,7 @@ class LowessSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands.
+            Type of interval used to produce the lower and upper bands.
             Supported type are 'sigma_interval', 'confidence_interval' and 'prediction_interval'.
         confidence : float, default 0.05
             The significance level for the intervals calculated as (1-confidence) level from
@@ -1229,13 +1394,14 @@ class LowessSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval', 'confidence_interval', 'prediction_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(
-                f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -1273,7 +1439,7 @@ class DecomposeSmoother(object):
         If True, the raw data received by the smoother and the smoothed results
         can be accessed using 'data' and 'smooth_data' attributes. This is useful
         to calculate the intervals. If set to False the interval calculation is disabled.
-        In order to save memory, set it to False if you are intereset only
+        In order to save memory, set it to False if you are interested only
         in the smoothed results.
 
     Attributes
@@ -1292,9 +1458,9 @@ class DecomposeSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_seasonal_data(n_series=3, timesteps=300,
-    >>>                          freq=24, measure_noise=30)
+    ...                          freq=24, measure_noise=30)
     >>> smoother = DecomposeSmoother(smooth_type='convolution', periods=24,
-    >>>                              window_len=30, window_type='ones')
+    ...                              window_len=30, window_type='ones')
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('sigma_interval')
     """
@@ -1338,10 +1504,12 @@ class DecomposeSmoother(object):
         methods = ['additive', 'multiplicative']
 
         if self.smooth_type not in smooth_types:
-            raise ValueError(f"'{self.smooth_type}' is not a supported smooth type. Supported types are {smooth_types}")
+            raise ValueError(f"'{self.smooth_type}' is not a supported smooth type. "
+                             f"Supported types are {smooth_types}")
 
         if self.method not in methods:
-            raise ValueError(f"'{self.method}' is not a supported method type. Supported types are {methods}")
+            raise ValueError(f"'{self.method}' is not a supported method type. "
+                             f"Supported types are {methods}")
 
         if not isinstance(self.periods, list):
             self.periods = [self.periods]
@@ -1391,6 +1559,7 @@ class DecomposeSmoother(object):
 
         return self
 
+
     def get_intervals(self, interval_type, n_sigma=2, **kwargs):
 
         """
@@ -1400,7 +1569,7 @@ class DecomposeSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands.
+            Type of interval used to produce the lower and upper bands.
             Supported type is 'sigma_interval'.
         n_sigma : int, default 2
             How many standard deviations, calculated on residuals of the smoothing operation,
@@ -1416,13 +1585,14 @@ class DecomposeSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(
-                f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -1471,7 +1641,7 @@ class KalmanSmoother(object):
         If True, the raw data received by the smoother and the smoothed results 
         can be accessed using 'data' and 'smooth_data' attributes. This is useful 
         to calculate the intervals. If set to False the interval calculation is disabled. 
-        In order to save memory, set it to False if you are intereset only 
+        In order to save memory, set it to False if you are interested only
         in the smoothed results. 
         
     Attributes
@@ -1490,9 +1660,9 @@ class KalmanSmoother(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=10, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = KalmanSmoother(component='level_trend', 
-    >>>                           component_noise={'level':0.1, 'trend':0.1})
+    ...                           component_noise={'level':0.1, 'trend':0.1})
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('kalman_interval')
     """
@@ -1697,7 +1867,7 @@ class KalmanSmoother(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported types are 'sigma_interval' and 'kalman_interval'. 
         confidence : float, default 0.05 
             The significance level for the intervals calculated as (1-confidence). 
@@ -1717,12 +1887,14 @@ class KalmanSmoother(object):
         """
 
         if self.data is None:
-            raise ValueError("Pass some data to the smoother before computing intervals, setting copy == True")
+            raise ValueError("Pass some data to the smoother before computing intervals, "
+                             "setting copy == True")
 
         interval_types = ['sigma_interval', 'kalman_interval']
 
         if interval_type not in interval_types:
-            raise ValueError(f"'{interval_type}' is not a supported interval type. Supported types are {interval_types}")
+            raise ValueError(f"'{interval_type}' is not a supported interval type. "
+                             f"Supported types are {interval_types}")
 
         if interval_type == 'sigma_interval':
             low, up = sigma_interval(self.data, self.smooth_data, n_sigma)
@@ -1742,7 +1914,7 @@ class WindowWrapper(object):
     The WindowWrapper handles single timeseries. After the sliding windows are 
     generated, the WindowWrapper smooths them using the smoother it receives as 
     input parameter. In this way, the smoothing can be carried out like a 
-    multivariate smoothing task.
+    multiple smoothing task.
     
     The WindowWrapper automatically vectorizes, in an efficient way, 
     the sliding window creation and the desired smoothing operation. 
@@ -1771,9 +1943,9 @@ class WindowWrapper(object):
     >>> from tsmoothie.smoother import *
     >>> np.random.seed(33)
     >>> data = sim_randomwalk(n_series=1, timesteps=200, 
-    >>>                       process_noise=10, measure_noise=30)
+    ...                       process_noise=10, measure_noise=30)
     >>> smoother = WindowWrapper(LowessSmoother(smooth_fraction=0.3, iterations=1), 
-    >>>                          window_shape=30)
+    ...                          window_shape=30)
     >>> smoother.smooth(data)
     >>> low, up = smoother.get_intervals('prediction_interval')
     """
@@ -1819,7 +1991,7 @@ class WindowWrapper(object):
             data = data.ravel()[:,None]
         else:
             raise ValueError("The format of data received is not appropriate. " 
-                             "window_wrapper accepts only univariate timeseries.")
+                             "WindowWrapper accepts only univariate timeseries")
 
         if data.shape[0] < self.window_shape:
             raise ValueError("window_shape must be <= than timesteps")
@@ -1841,7 +2013,7 @@ class WindowWrapper(object):
         Parameters
         ----------
         interval_type : str
-            Type of interval used to produced the lower and upper bands. 
+            Type of interval used to produce the lower and upper bands.
             Supported types are the same types supperted by every single Smoother. 
         confidence : float, default 0.05
             The significance level for the intervals calculated as (1-confidence). 
@@ -1861,7 +2033,8 @@ class WindowWrapper(object):
         """
 
         if self.Smoother.data is None:
-            raise ValueError("Pass some data to the WindowWrapper smoother before computing intervals, setting copy == True in the Smoother")
+            raise ValueError("Pass some data to the WindowWrapper smoother before computing intervals, "
+                             "setting copy == True in the Smoother")
 
         low, up = self.Smoother.get_intervals(interval_type, confidence=confidence, n_sigma=n_sigma)
 
