@@ -47,6 +47,7 @@ Blog Posts:
 - [Time Series Smoothing for better Forecasting](https://towardsdatascience.com/time-series-smoothing-for-better-forecasting-7fbf10428b2)
 - [Real-Time Time Series Anomaly Detection](https://towardsdatascience.com/real-time-time-series-anomaly-detection-981cf1e1ca13)
 - [Extreme Event Time Series Preprocessing](https://towardsdatascience.com/extreme-event-time-series-preprocessing-90aa59d5630c)
+- [Time Series Bootstrap in the age of Deep Learning](https://towardsdatascience.com/time-series-bootstrap-in-the-age-of-deep-learning-b98aa2aa32c4)
 
 ## Installation
 
