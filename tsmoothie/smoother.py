@@ -1260,13 +1260,12 @@ class DecomposeSmoother(_BaseSmoother):
         seasonal = [np.tile(p_a, (1, nobs // periods[i] + 1))[:, :nobs]
                     for i, p_a in enumerate(period_averages)]
 
-        if self.method == 'additive':
-            smooth = smoother.smooth_data
-            for season in seasonal:
+        data = smoother.data
+        smooth = smoother.smooth_data
+        for season in seasonal:
+            if self.method == 'additive':
                 smooth += season
-        else:
-            smooth = smoother.smooth_data
-            for season in seasonal:
+            else:
                 smooth *= season
 
         self._store_results(smooth_data=smooth, data=data)

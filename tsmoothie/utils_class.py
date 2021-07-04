@@ -140,8 +140,8 @@ class LinearRegression(object):
         self : returns an instance of self
         """
 
-        X, y, X_offset, y_offset, X_scale = self._preprocess_data(X, y,
-                                                                  sample_weight=sample_weight)
+        X, y, X_offset, y_offset, X_scale = self._preprocess_data(
+            X, y, sample_weight=sample_weight)
 
         if np.unique(sample_weight).shape[0] > 1:
             X, y = self._rescale_data(X, y, sample_weight)
