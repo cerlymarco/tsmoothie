@@ -483,7 +483,12 @@ class SpectralSmoother(_BaseSmoother):
         else:
             rfft[n_coeff:] = 0
 
-        smooth = np.fft.irfft(rfft, axis=0)
+        if data.shape[0] % 2 > 0:
+            n = 2 * rfft.shape[0] - 1
+        else:
+            n = 2 * (rfft.shape[0] - 1)
+
+        smooth = np.fft.irfft(rfft, n=n, axis=0)
         smooth = smooth[self.pad_len:-self.pad_len]
 
         smooth = _check_output(smooth)
