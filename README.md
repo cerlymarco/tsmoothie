@@ -130,6 +130,8 @@ for i in range(3):
 
 ![Sinusoidal Smoothing](https://raw.githubusercontent.com/cerlymarco/tsmoothie/master/imgs/sinusoidal_smoothing.png)
 
+**All the available smoothers are fully integrable with sklearn (see [here](https://github.com/cerlymarco/tsmoothie/blob/master/notebooks/sklearn-wrapper.ipynb)).**
+
 ## Usage: _bootstrap_
 
 ```python
