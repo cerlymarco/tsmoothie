@@ -52,7 +52,7 @@ Blog Posts:
 ## Installation
 
 ```shell
-pip install tsmoothie
+pip install --upgrade tsmoothie
 ```
 
 The module depends only on NumPy, SciPy and simdkalman. Python 3.6 or above is supported.
