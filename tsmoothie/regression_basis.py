@@ -168,5 +168,3 @@ def lowess(smooth_fraction, basis_len):
     X_base = np.power(1 - np.power(X_base, 3), 3)
 
     return X_base
-    
-    return X_base
