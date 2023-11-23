@@ -510,7 +510,8 @@ def _id_nb_bootstrap(n_obs, block_length):
         np.arange(0, n_obs, block_length)
     ).reshape(-1, 1)
 
-    _id = (blocks + nexts).ravel()[:n_obs]
+    _id = (blocks + nexts).ravel()
+    _id = _id[_id < n_obs]
 
     return _id
 
